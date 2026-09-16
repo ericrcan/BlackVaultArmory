@@ -108,7 +108,12 @@ export async function POST(request: NextRequest) {
         type: normalizeString(type) || "UNSPECIFIED",
         caliber: caliber ?? null,
         purchasePrice: purchasePrice ?? null,
-        acquisitionDate: acquisitionDate ? new Date(acquisitionDate) : null,
+        acquisitionDate: acquisitionDate
+          ? (() => {
+              const [year, month, day] = acquisitionDate.split("-").map(Number);
+              return new Date(year, month - 1, day);
+            })()
+          : null,
         notes: notes ?? null,
         imageUrl: imageUrl ?? null,
         imageSource: imageSource ?? null,
@@ -116,7 +121,12 @@ export async function POST(request: NextRequest) {
         compatibleCalibers: compatibleCalibers ?? null,
         hasBattery: Boolean(hasBattery),
         batteryType: batteryType ?? null,
-        lastBatteryChangeDate: lastBatteryChangeDate ? new Date(lastBatteryChangeDate) : null,
+        lastBatteryChangeDate: lastBatteryChangeDate
+          ? (() => {
+              const [year, month, day] = lastBatteryChangeDate.split("-").map(Number);
+              return new Date(year, month - 1, day);
+            })()
+          : null,
         replacementIntervalDays: replacementIntervalDays ?? null,
         roundCount: initialRoundCount ? Math.floor(Number(initialRoundCount)) : 0,
       },

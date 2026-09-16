@@ -107,13 +107,23 @@ export async function POST(request: NextRequest) {
           : null,
         serialNumber: normalizeString(serialNumber) || fallbackSerialNumber(),
         type: normalizeString(type) || "UNSPECIFIED",
-        acquisitionDate: acquisitionDate ? new Date(acquisitionDate) : new Date(),
+        acquisitionDate: acquisitionDate
+          ? (() => {
+              const [year, month, day] = acquisitionDate.split("-").map(Number);
+              return new Date(year, month - 1, day);
+            })()
+          : new Date(),
         purchasePrice: purchasePrice ?? null,
         currentValue: currentValue ?? null,
         notes: notes ? normalizeString(notes) : null,
         imageUrl: imageUrl ?? null,
         imageSource: imageSource ?? null,
-        lastMaintenanceDate: lastMaintenanceDate ? new Date(lastMaintenanceDate) : null,
+        lastMaintenanceDate: lastMaintenanceDate
+          ? (() => {
+              const [year, month, day] = lastMaintenanceDate.split("-").map(Number);
+             return new Date(year, month - 1, day);
+            })()
+          : null,
         maintenanceIntervalDays: maintenanceIntervalDays ?? null,
       },
       include: {

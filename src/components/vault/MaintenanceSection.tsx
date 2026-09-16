@@ -25,11 +25,24 @@ type Props = {
 };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+  const date = new Date(iso);
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+   ).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+}
+
+function getLocalDateString() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function computeStatus(lastDate: string | null, intervalDays: number | null) {
@@ -54,7 +67,7 @@ export function MaintenanceSection({ firearmId, lastMaintenanceDate: initialLast
 
   // Add form state
   const [showForm, setShowForm] = useState(false);
-  const [formDate, setFormDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [formDate, setFormDate] = useState(() => getLocalDateString());
   const [formNotes, setFormNotes] = useState("");
   const [formRoundCount, setFormRoundCount] = useState("");
   const [formSetNextDue, setFormSetNextDue] = useState(false);
@@ -106,7 +119,7 @@ export function MaintenanceSection({ firearmId, lastMaintenanceDate: initialLast
       }
 
       // Reset form
-      setFormDate(new Date().toISOString().split("T")[0]);
+      setFormDate(getLocalDateString());
       setFormNotes("");
       setFormRoundCount("");
       setFormSetNextDue(false);

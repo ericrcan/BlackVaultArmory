@@ -10,9 +10,12 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
 
-    const changeDate = body.lastBatteryChangeDate
-      ? new Date(body.lastBatteryChangeDate)
-      : new Date();
+    const changeDate = (() => {
+      if (!body.lastBatteryChangeDate) return new Date();
+
+      const [year, month, day] = body.lastBatteryChangeDate.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    })();
 
     const updated = await prisma.accessory.update({
       where: { id },

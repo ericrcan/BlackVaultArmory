@@ -126,7 +126,12 @@ export async function POST(
         hitFactor,
         notes: typeof notes === "string" ? notes.trim() || null : null,
         sortOrder: typeof sortOrder === "number" && Number.isInteger(sortOrder) ? sortOrder : 0,
-        drillDate: drillDate ? new Date(drillDate) : null,
+        drillDate: (() => {
+          if (!drillDate) return null;
+
+          const [year, month, day] = drillDate.split("-").map(Number);
+          return new Date(year, month - 1, day);
+        })(),
       },
     });
 

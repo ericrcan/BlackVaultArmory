@@ -20,8 +20,17 @@ export function formatNumber(value: number | null | undefined): string {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+export function getLocalDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "—";
+
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
@@ -31,8 +40,13 @@ export function formatDate(date: Date | string | null | undefined): string {
 
 export function formatDateInput(date: Date | string | null | undefined): string {
   if (!date) return "";
-  const d = new Date(date);
-  return d.toISOString().split("T")[0];
+
+  const parsed = new Date(date);
+  const year = parsed.getUTCFullYear();
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getUTCDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 export function roundsLabel(count: number): string {

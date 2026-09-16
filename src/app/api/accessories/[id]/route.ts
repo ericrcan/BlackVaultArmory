@@ -126,7 +126,12 @@ export async function PUT(
         ...(caliber !== undefined && { caliber }),
         ...(purchasePrice !== undefined && { purchasePrice }),
         ...(acquisitionDate !== undefined && {
-          acquisitionDate: acquisitionDate ? new Date(acquisitionDate) : null,
+          acquisitionDate: acquisitionDate
+            ? (() => {
+                const [year, month, day] = acquisitionDate.split("-").map(Number);
+                return new Date(year, month - 1, day);
+              })()
+            : null,
         }),
         ...(notes !== undefined && { notes }),
         ...(imageUrl !== undefined && { imageUrl }),
@@ -136,7 +141,12 @@ export async function PUT(
         ...(hasBattery !== undefined && { hasBattery: Boolean(hasBattery) }),
         ...(batteryType !== undefined && { batteryType }),
         ...(lastBatteryChangeDate !== undefined && {
-          lastBatteryChangeDate: lastBatteryChangeDate ? new Date(lastBatteryChangeDate) : null,
+          lastBatteryChangeDate: lastBatteryChangeDate
+            ? (() => {
+                const [year, month, day] = lastBatteryChangeDate.split("-").map(Number);
+                return new Date(year, month - 1, day);
+              })()
+            : null,
         }),
         ...(replacementIntervalDays !== undefined && { replacementIntervalDays }),
       },

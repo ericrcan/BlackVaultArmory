@@ -158,7 +158,10 @@ export async function POST(request: NextRequest) {
 
     const parsedDate = (() => {
       if (typeof sessionDate !== "string" || sessionDate.trim().length === 0) return new Date();
-      const parsed = new Date(sessionDate);
+
+      const [year, month, day] = sessionDate.split("-").map(Number);
+      const parsed = new Date(year, month - 1, day);
+
       return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
     })();
 

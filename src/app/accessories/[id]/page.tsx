@@ -8,6 +8,7 @@ import { ItemDocumentPanel } from "@/components/shared/ItemDocumentPanel";
 import { RoundCountBadge } from "@/components/shared/RoundCountBadge";
 import { RemoveImageButton } from "@/components/shared/RemoveImageButton";
 import { ArchiveButton } from "@/components/shared/ArchiveButton";
+import { getLocalDateString } from "@/lib/utils";
 import {
   ArrowLeft,
   Shield,
@@ -124,7 +125,7 @@ export default function AccessoryDetailPage() {
 
   // Battery change log
   const [batteryLogOpen, setBatteryLogOpen] = useState(false);
-  const [batteryDate, setBatteryDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [batteryDate, setBatteryDate] = useState(() => getLocalDateString());
   const [batteryTypeInput, setBatteryTypeInput] = useState("");
   const [batteryNotes, setBatteryNotes] = useState("");
   const [batterySubmitting, setBatterySubmitting] = useState(false);
@@ -218,7 +219,7 @@ export default function AccessoryDetailPage() {
               }
             : prev
         );
-        setBatteryDate(new Date().toISOString().split("T")[0]);
+        setBatteryDate(getLocalDateString());
         setBatteryNotes("");
         setBatteryLogOpen(false);
       }

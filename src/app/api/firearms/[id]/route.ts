@@ -110,7 +110,12 @@ export async function PUT(
         ...(serialNumber !== undefined && { serialNumber: normalizeString(serialNumber) || fallbackSerialNumber() }),
         ...(type !== undefined && { type: normalizeString(type) || "UNSPECIFIED" }),
         ...(acquisitionDate !== undefined && {
-          acquisitionDate: acquisitionDate ? new Date(acquisitionDate) : existing.acquisitionDate,
+          acquisitionDate: acquisitionDate
+            ? (() => {
+                const [year, month, day] = acquisitionDate.split("-").map(Number);
+                return new Date(year, month - 1, day);
+              })()
+            : existing.acquisitionDate,
         }),
         ...(purchasePrice !== undefined && { purchasePrice }),
         ...(currentValue !== undefined && { currentValue }),
@@ -118,7 +123,12 @@ export async function PUT(
         ...(imageUrl !== undefined && { imageUrl }),
         ...(imageSource !== undefined && { imageSource }),
         ...(lastMaintenanceDate !== undefined && {
-          lastMaintenanceDate: lastMaintenanceDate ? new Date(lastMaintenanceDate) : null,
+          lastMaintenanceDate: lastMaintenanceDate
+            ? (() => {
+                const [year, month, day] = lastMaintenanceDate.split("-").map(Number);
+                return new Date(year, month - 1, day);
+              })()
+            : null,
         }),
         ...(maintenanceIntervalDays !== undefined && { maintenanceIntervalDays }),
       },

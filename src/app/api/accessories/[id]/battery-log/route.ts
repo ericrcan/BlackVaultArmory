@@ -44,7 +44,12 @@ export async function POST(
       return NextResponse.json({ error: "Accessory not found" }, { status: 404 });
     }
 
-    const changeDate = changedAt ? new Date(changedAt) : new Date();
+    const changeDate = (() => {
+      if (!changedAt) return new Date();
+
+      const [year, month, day] = changedAt.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    })();
 
     const updateData: Record<string, unknown> = {
       lastBatteryChangeDate: changeDate,

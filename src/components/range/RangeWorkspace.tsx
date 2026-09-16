@@ -10,6 +10,7 @@ import Link from "next/link";
 import { safeId } from "@/lib/client/id";
 import { inferDrillModeFromEntry, resolveDrillMetrics, type DrillPerformanceMode } from "@/lib/range/drill-metrics";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { getLocalDateString } from "@/lib/utils";
 
 const SECTION_CARD_CLASS = `${vaultCardClass} space-y-4`;
 
@@ -139,6 +140,18 @@ const HIT_CARD_STYLES: Record<"alpha" | "charlie" | "delta" | "steel", string> =
   steel: "border-[#D06BFF]/35 bg-[#D06BFF]/10",
 };
 
+function formatRangeDate(dateString: string, options?: Intl.DateTimeFormatOptions): string {
+  const date = new Date(dateString);
+
+  return new Intl.DateTimeFormat("en-US", options).format(
+    new Date(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate()
+    )
+  );
+}
+
 function calculateHitFactor(points: number, timeSeconds: number) {
   if (!Number.isFinite(timeSeconds) || timeSeconds <= 0) return 0;
   if (!Number.isFinite(points) || points < 0) return 0;
@@ -184,7 +197,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
   const [selectedBuild, setSelectedBuild] = useState<string>("");
   const [roundsFired, setRoundsFired] = useState<string>("");
   const [ammoSelections, setAmmoSelections] = useState<AmmoSelection[]>([{ ammoStockId: "", roundsUsed: "" }]);
-  const [sessionDate, setSessionDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [sessionDate, setSessionDate] = useState<string>(getLocalDateString());
   const [sessionLocation, setSessionLocation] = useState<string>("");
   const [sessionNote, setSessionNote] = useState<string>("");
   const [selectedAccessories, setSelectedAccessories] = useState<Set<string>>(new Set());
@@ -411,7 +424,11 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
   useEffect(() => {
     const session = sessions.find((s) => s.id === selectedSessionId);
     if (session) {
-      setDrillDate(new Date(session.sessionDate).toISOString().slice(0, 10));
+      const sessionDateValue = new Date(session.sessionDate);
+      const year = sessionDateValue.getUTCFullYear();
+      const month = String(sessionDateValue.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(sessionDateValue.getUTCDate()).padStart(2, "0");
+      setDrillDate(`${year}-${month}-${day}`);
     } else {
       setDrillDate("");
     }
@@ -522,7 +539,11 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
 
     setEditingSessionId(sessionToEdit.id);
     setSelectedSessionId(sessionToEdit.id);
-    setSessionDate(new Date(sessionToEdit.sessionDate).toISOString().slice(0, 10));
+    const sessionDateValue = new Date(sessionToEdit.sessionDate);
+    const year = sessionDateValue.getUTCFullYear();
+    const month = String(sessionDateValue.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(sessionDateValue.getUTCDate()).padStart(2, "0");
+    setSessionDate(`${year}-${month}-${day}`);
     setSessionLocation(sessionToEdit.location);
     setSelectedFirearm(sessionToEdit.firearm.id);
     setSelectedBuild(sessionToEdit.build?.id ?? "");
@@ -727,7 +748,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
         method: isEditingSession ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionDate: sessionDate || new Date().toISOString().slice(0, 10),
+          sessionDate: sessionDate || getLocalDateString(),
           location: sessionLocation || "Unspecified location",
           firearmId: selectedFirearmId,
           buildId: selectedBuild || null,
@@ -1508,7 +1529,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
                     <option value="">No session (optional)</option>
                     {sessions.map((session) => (
                       <option key={session.id} value={session.id}>
-                        {new Date(session.sessionDate).toLocaleDateString()} · {session.location} · {session.firearm.name}
+                        {formatRangeDate(session.sessionDate)} · {session.location} · {session.firearm.name}
                       </option>
                     ))}
                   </VaultSelect>
@@ -2064,7 +2085,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
                 >
                   <div className="p-3">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-medium text-vault-text">{new Date(session.sessionDate).toLocaleDateString()} · {session.location}</p>
+                      <p className="text-sm font-medium text-vault-text">{formatRangeDate(session.sessionDate)} · {session.location}</p>
                       <div className="flex items-center gap-2">
                         <p className="text-xs font-mono text-[#F5A623]">{formatNumber(session.roundsFired)} rds</p>
                         <button
@@ -2109,7 +2130,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
                   {expandedSessionId === session.id && (
                     <div className="px-4 pb-4 pt-2 border-t border-vault-border/40 space-y-2">
                       <div className="grid grid-cols-2 gap-2 text-xs text-vault-text-muted">
-                        <span>Date: {new Date(session.sessionDate).toLocaleDateString()}</span>
+                        <span>Date: {formatRangeDate(session.sessionDate)}</span>
                         <span>Location: {session.location}</span>
                         <span>Firearm: {session.firearm.name}</span>
                         <span>Rounds: {session.roundsFired}</span>
@@ -2137,7 +2158,7 @@ export function RangeWorkspace({ view }: RangeWorkspaceProps) {
                                   {drill.name}
                                   {showDrillDate && (
                                     <span className="ml-1.5 text-[10px] text-vault-text-faint">
-                                      (logged: {new Date(drill.drillDate!).toLocaleDateString(undefined, { month: "short", day: "numeric" })})
+                                      (logged: {formatRangeDate(drill.drillDate!, { month: "short", day: "numeric" })})
                                     </span>
                                   )}
                                 </td>

@@ -26,7 +26,9 @@ export async function PUT(
       if (typeof body.sessionDate !== "string" || body.sessionDate.trim().length === 0) {
         return NextResponse.json({ error: "sessionDate must be a valid date string" }, { status: 400 });
       }
-      const parsed = new Date(body.sessionDate);
+      const [year, month, day] = body.sessionDate.split("-").map(Number);
+      const parsed = new Date(year, month - 1, day);
+
       if (Number.isNaN(parsed.getTime())) {
         return NextResponse.json({ error: "sessionDate must be a valid date string" }, { status: 400 });
       }

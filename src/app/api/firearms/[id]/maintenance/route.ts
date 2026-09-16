@@ -37,7 +37,8 @@ export async function POST(
     return NextResponse.json({ error: "date and notes are required" }, { status: 400 });
   }
 
-  const entryDate = new Date(body.date);
+  const [year, month, day] = body.date.split("-").map(Number);
+  const entryDate = new Date(year, month - 1, day);
   if (isNaN(entryDate.getTime())) {
     return NextResponse.json({ error: "Invalid date" }, { status: 400 });
   }
