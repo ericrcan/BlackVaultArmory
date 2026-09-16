@@ -4,11 +4,14 @@ import { requireAuth } from "@/lib/server/auth";
 import fs from "fs";
 import path from "path";
 
-export async function POST() {
+export async function POST(request: Request) {
   const auth = await requireAuth();
   if (auth) return auth;
 
   try {
+    const body = await request.json().catch(() => ({}));
+    const timezone = typeof body.timezone === "string" ? body.timezone : "UTC";
+
     // Sequential queries — connection_limit=1 means Promise.all would deadlock
     const firearms             = await prisma.firearm.findMany({ orderBy: { createdAt: "asc" } });
     const builds               = await prisma.build.findMany({ orderBy: { createdAt: "asc" } });
@@ -25,7 +28,28 @@ export async function POST() {
     const settings             = await prisma.appSettings.findUnique({ where: { id: "singleton" } });
 
     const now = new Date();
-    const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
+
+    let timestamp: string;
+
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: timezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).formatToParts(now);
+
+      const getPart = (type: string) =>
+        parts.find((part) => part.type === type)?.value ?? "";
+
+      timestamp = `${getPart("year")}${getPart("month")}${getPart("day")}-${getPart("hour")}${getPart("minute")}`;
+    } catch {
+      // Fall back to UTC if the browser supplied an invalid timezone.
+      timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 13);
+    }
 
     const backupData = {
       firearms,

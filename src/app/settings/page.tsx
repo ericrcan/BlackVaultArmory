@@ -159,7 +159,14 @@ export default function SettingsPage() {
     setBackupError(null);
     setBackupResult(null);
     try {
-      const res = await fetch("/api/backup", { method: "POST" });
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const res = await fetch("/api/backup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ timezone }),
+      });
       const json = await res.json();
       if (!res.ok || !json.success) {
         setBackupStatus("error");
